@@ -1,0 +1,81 @@
+#include<stdlib.h>
+#include "flexCore_if.h"
+#include<stdio.h>
+#include <conio.h> // 仅适用于Windows
+#include<windows.h>
+int main()
+{
+
+    adx_CoreInit(); //启动运动库
+
+    int axisId=0;
+    int index=0;
+    double status;
+    int bufferMode=0;
+    int ret=adx_ReadStatus(axisId, index, &status, bufferMode);
+    if (ret)
+    {
+        printf("adx_ReadStatus error %d\n", ret);
+        return ret;
+    }
+    printf("Axis %d status: %f\n", axisId, status);
+    int enable=1;
+    int startMode=0;
+    int stopMode=0;
+    ret = adx_Power(axisId, enable, startMode,stopMode);//启用0轴
+    if (ret)
+    {
+        printf("adx_Power error %d\n", ret);
+        return ret;
+    }
+    ret=adx_ReadStatus(axisId, index, &status, bufferMode);
+    if (ret)
+    {
+        printf("adx_ReadStatus error %d\n", ret);
+        return ret;
+    }
+    printf("Axis %d status: %f\n", axisId, status);
+    double position=200;
+    double velocity=50;
+    double acceleration=100;
+    double deceleration=100;
+    double jerk=0.0;
+    int direction=3;
+    bufferMode=0;
+    //0轴绝对定位到100
+    ret=adx_MoveAbsolute(axisId, index, position, velocity, acceleration, deceleration,jerk, direction, bufferMode);
+    if (ret)
+    {
+        printf("adx_MoveAbsolute error %d\n", ret);
+        return ret;
+    }
+    Sleep(1500);
+    ret=adx_ReadStatus(axisId, index, &status, bufferMode);
+    if (ret)
+    {
+        printf("adx_ReadStatus error %d\n", ret);
+        return ret;
+    }
+    printf("Axis %d status: %f\n", axisId, status);
+
+    Sleep(5000);
+    ret=adx_ReadStatus(axisId, index, &status, bufferMode);
+    if (ret)
+    {
+        printf("adx_ReadStatus error %d\n", ret);
+        return ret;
+    }
+    printf("Axis %d status: %f\n", axisId, status);
+    //等待运动执行完成
+    while(1) {
+        if (kbhit()) { // 检查是否有按键按下
+            int ch = getch(); // 获取按键
+            if (ch == 27) { // ESC键的ASCII码是27
+                printf("adx_Core exit\n");
+                break;
+            }
+        }        
+    }
+    adx_CoreClose();//关闭运动库
+    return ret;
+}

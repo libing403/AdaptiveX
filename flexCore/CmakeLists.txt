@@ -1,0 +1,61 @@
+
+
+add_subdirectory(mcCore)
+
+add_library(flexCore STATIC "")
+aux_source_directory(. flexCore_src)
+if(MSVC)
+  set_property(TARGET flexCore PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
+target_sources(flexCore PRIVATE ${flexCore_src})
+target_sources(flexCore PRIVATE
+ ./3rdParty/ulog/src/ulog.c
+
+ )
+
+target_include_directories(flexCore
+  PUBLIC
+  .
+  ../
+  ./3rdParty/ulog/src
+)
+ 
+cmake_policy(SET CMP0076 NEW)# Enable CMP0076 to allow globbing of source files
+
+if(MSVC)
+  target_compile_definitions(flexCore PUBLIC _USE_MATH_DEFINES)
+endif()
+
+
+target_link_libraries(flexCore
+  PRIVATE
+  mcCore
+)
+
+install(FILES 
+./flexCore_if.h 
+cmdNo.h
+mcCore/mcCore.h
+mcCore/platformCfg.h
+DESTINATION  adxlib_windows/flexCore/include )
+
+ 
+
+install(FILES 
+./flexCore_if.h 
+cmdNo.h
+mcCore/mcCore.h
+mcCore/platformCfg.h
+./3rdParty/ulog/src/ulog.h
+DESTINATION adxlib_mcu/include )
+
+install(FILES cmdexcute.c DESTINATION adxlib_mcu)
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
+message(STATUS "CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS flexCore  
+    ARCHIVE DESTINATION adxlib_windows/flexCore/lib
+    LIBRARY DESTINATION adxlib_windows/flexCore/lib
+    RUNTIME DESTINATION adxlib_windows/flexCore/bin
+)

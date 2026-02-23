@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(app LANGUAGES C CXX)
+# 强制使用 C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)  # 禁用 GNU 扩展，确保跨平台兼容性
+
+# 使用 C11 标准
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+#编译配置release
+set(CMAKE_BUILD_TYPE Debug)
+
+message(STATUS "Build type:" ${CMAKE_BUILD_TYPE})
+message(STATUS "C compiler flags:" ${CMAKE_C_FLAGS})
+set(CMAKE_FIND_PACKAGE_DEBUG TRUE)
+
+file(GLOB_RECURSE sourceFile CONFIGURE_DEPENDS
+  "./*.c"
+  "./*.cpp"
+) 
+
+
+set(targetName "test_adx_MoveAbsolute")    
+add_executable(${targetName} " ")
+target_sources(${targetName} PRIVATE 
+    ./${targetName}.c
+    # ../flexCore/3rdParty/libmodbus-3.1.11/src/modbus.c
+    # ../flexCore/3rdParty/libmodbus-3.1.11/src/modbus-rtu.c
+    # ../flexCore/3rdParty/libmodbus-3.1.11/src/modbus-tcp.c
+    # ../flexCore/3rdParty/libmodbus-3.1.11/src/modbus-data.c
+)
+target_link_libraries(${targetName} flexCore)
+target_include_directories(${targetName} PUBLIC 
+../../adxlib/flexCore/include/
+# ../flexCore/3rdParty/libmodbus-3.1.11/src/
+)
+target_link_directories(${targetName} PUBLIC  ../../adxlib/flexCore/lib/)
+
+set(CMAKE_INSTALL_PREFIX "E:/gogsRepo/adxlib")
+target_compile_definitions(${targetName} PUBLIC _USE_MATH_DEFINES)#链接数学库
+install(TARGETS ${targetName}
+      ARCHIVE DESTINATION debug_windows
+      LIBRARY DESTINATION debug_windows
+      RUNTIME DESTINATION debug_windows
+    )
